@@ -1,42 +1,36 @@
 import time
+from injection_detector import check_injection
+from pii_detector import find_pii, anonymize_pii
+from policy_engine import evaluate_policy
 
-from injection_detector import detect_injection
-from pii_detector import detect_pii, mask_pii
-from policy_engine import policy_decision
+def handle_input(user_text):
 
+    start_time = time.time()
 
-def process_input(user_input):
+    # Step 1: Check for injection
+    injection_level = check_injection(user_text)
 
-    start = time.time()
+    # Step 2: Detect PII
+    pii_items = find_pii(user_text)
 
-    # Injection detection
-    injection_score = detect_injection(user_input)
+    # Step 3: Policy evaluation
+    action = evaluate_policy(injection_level, pii_items)
 
-    # PII detection
-    pii_results = detect_pii(user_input)
-
-    # policy decision
-    decision = policy_decision(injection_score, pii_results)
-
-    if decision == "BLOCK":
-        output = "Request Blocked (Prompt Injection Detected)"
-
-    elif decision == "MASK":
-        output = mask_pii(user_input, pii_results)
-
+    if action == "BLOCKED":
+        output = "Request Denied (Injection Detected)"
+    elif action == "MASKED":
+        output = anonymize_pii(user_text, pii_items)
     else:
-        output = user_input
+        output = user_text
 
-    latency = time.time() - start
+    elapsed_time = time.time() - start_time
 
-    print("\n----- Result -----")
-    print("Injection Score:", injection_score)
-    print("Decision:", decision)
-    print("Output:", output)
-    print("Latency:", latency)
-
+    print("\n--- Analysis Result ---")
+    print("Injection Level:", injection_level)
+    print("Policy Decision:", action)
+    print("Processed Output:", output)
+    print("Processing Time:", elapsed_time)
 
 if __name__ == "__main__":
-
-    user_input = input("Enter prompt: ")
-    process_input(user_input)
+    user_text = input("Enter your prompt: ")
+    handle_input(user_text)

@@ -1,8 +1,8 @@
-# Detect prompt injection or jailbreak attempts
+# Detect suspicious prompt injections
 
-def detect_injection(text):
+def check_injection(text):
 
-    suspicious_words = [
+    flagged_phrases = [
         "ignore previous instructions",
         "reveal system prompt",
         "bypass safety",
@@ -10,13 +10,13 @@ def detect_injection(text):
         "act as system"
     ]
 
-    score = 0
+    detected_score = 0
 
-    for word in suspicious_words:
-        if word in text.lower():
-            score += 1
+    for phrase in flagged_phrases:
+        if phrase in text.lower():
+            detected_score += 1
 
-    # normalize score
-    score = score / len(suspicious_words)
+    # Normalize score between 0-1
+    detected_score = detected_score / len(flagged_phrases)
 
-    return score
+    return detected_score

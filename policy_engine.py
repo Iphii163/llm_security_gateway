@@ -1,9 +1,9 @@
-def policy_decision(injection_score, pii_results):
+def evaluate_policy(injection_score, pii_findings):
 
     if injection_score > 0.3:
-        return "BLOCK"
+        return "BLOCKED"
 
-    if len(pii_results) > 0:
-        return "MASK"
+    if len(pii_findings) > 0:
+        return "MASKED"
 
-    return "ALLOW"
+    return "ALLOWED"

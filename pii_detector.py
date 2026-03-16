@@ -2,32 +2,31 @@ from presidio_analyzer import AnalyzerEngine, Pattern, PatternRecognizer
 from presidio_anonymizer import AnonymizerEngine
 
 # Initialize Presidio engines
-analyzer = AnalyzerEngine()
-anonymizer = AnonymizerEngine()
+analyzer_engine = AnalyzerEngine()
+anonymizer_engine = AnonymizerEngine()
 
-# Custom recognizer for API_KEY                         
-api_key_recognizer = PatternRecognizer(
+# API Key recognizer
+api_key_detector = PatternRecognizer(
     supported_entity="API_KEY",
     patterns=[
-        Pattern(name="api_key_pattern", regex=r"sk-[a-zA-Z0-9]{10,}", score=0.8)
+        Pattern(name="api_key_regex", regex=r"sk-[a-zA-Z0-9]{10,}", score=0.8)
     ]
 )
 
-# Custom recognizer for INTERNAL_ID
-internal_id_recognizer = PatternRecognizer(
+# Internal ID recognizer
+internal_id_detector = PatternRecognizer(
     supported_entity="INTERNAL_ID",
     patterns=[
-        Pattern(name="internal_id_pattern", regex=r"ID-\d{6}", score=0.8)
+        Pattern(name="internal_id_regex", regex=r"ID-\d{6}", score=0.8)
     ]
 )
 
-# Add custom recognizers to the analyzer
-analyzer.registry.add_recognizer(api_key_recognizer)
-analyzer.registry.add_recognizer(internal_id_recognizer)
+# Register custom detectors
+analyzer_engine.registry.add_recognizer(api_key_detector)
+analyzer_engine.registry.add_recognizer(internal_id_detector)
 
-
-def detect_pii(text):
-    results = analyzer.analyze(
+def find_pii(text):
+    findings = analyzer_engine.analyze(
         text=text,
         entities=[
             "PHONE_NUMBER",
@@ -38,14 +37,11 @@ def detect_pii(text):
         ],
         language="en"
     )
-    return results
+    return findings
 
-
-def mask_pii(text, results):
-    anonymized = anonymizer.anonymize(
+def anonymize_pii(text, findings):
+    anonymized_text = anonymizer_engine.anonymize(
         text=text,
-        analyzer_results=results
+        analyzer_results=findings
     )
-    return anonymized.text
-
-
+    return anonymized_text.text
